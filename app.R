@@ -36,10 +36,3 @@ shinyApp(ui, server)
 
 
 
-
-# # Deploy the app
-# rsconnect::setAccountInfo(name='acohen',
-# 			  token='CA6B85D75E3F1FD602737C0AE2968E2D',
-# 			  secret='Yj1/2oQwrzVGorDIxFtmD4ZXwuAI+SHII4Szr2Qw')
-
-# rsconnect::deployApp("my_shiny_app")
