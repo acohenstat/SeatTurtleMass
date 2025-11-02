@@ -1,5 +1,5 @@
 ui <- fluidPage(
-  titlePanel("𓆉 Biomass Prediction Based on Remote Morphometrics 𓆉 "),
+  titlePanel("𓆉 Sea Turtle Biomass Prediction - Stereo Video Camera Morphometrics 𓆉 "),
   sidebarLayout(
     sidebarPanel(
       numericInput("rSCL", "SCL - Straight Carapace Length (cm):", 6, min = 3, max = 8),
