@@ -19,6 +19,9 @@ library(shiny)
 library(rsconnect)
 library(tibble)
 library(tidymodels)
+library(ranger)
+
+
 #### model
     model_ready <- bundle::unbundle(readRDS("data/model_bundle.rds"))
 
