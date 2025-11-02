@@ -70,7 +70,14 @@ ui <- fluidPage(
         htmlOutput("uncertainty_mape")
       )
     )
-  )
+  ),
+  # ---- author----
+    tags$hr(),
+      div(
+      style = "text-align:center; font-size:14px; color:#5D6D7E; margin-top:20px;",
+      HTML("Developed by <b>Achraf Cohen</b> · Computational Statistics and Data Analytics Lab (CSDA) @ UWF <br>
+       © 2025")
+      )
 )
 
 # --- Server ---
