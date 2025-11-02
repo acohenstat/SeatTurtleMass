@@ -17,6 +17,7 @@ ui <- fluidPage(
 
 #### model
     model_ready <- unbundle(readRDS("data/model_bundle.rds"))
+
 server <- function(input, output) {
   pred_value <- eventReactive(input$go, {
     new_data <- tibble(
