@@ -14,6 +14,9 @@ ui <- fluidPage(
   )
 )
 
+
+#### model
+    model_ready <- unbundle(readRDS("app/model_bundle.rds"))
 server <- function(input, output) {
   pred_value <- eventReactive(input$go, {
     new_data <- tibble(
@@ -32,11 +35,11 @@ server <- function(input, output) {
 shinyApp(ui, server)
 
 
-#### Deploy
 
-# Deploy the app
-rsconnect::setAccountInfo(name='acohen',
-			  token='CA6B85D75E3F1FD602737C0AE2968E2D',
-			  secret='Yj1/2oQwrzVGorDIxFtmD4ZXwuAI+SHII4Szr2Qw')
 
-rsconnect::deployApp("my_shiny_app")
+# # Deploy the app
+# rsconnect::setAccountInfo(name='acohen',
+# 			  token='CA6B85D75E3F1FD602737C0AE2968E2D',
+# 			  secret='Yj1/2oQwrzVGorDIxFtmD4ZXwuAI+SHII4Szr2Qw')
+
+# rsconnect::deployApp("my_shiny_app")
