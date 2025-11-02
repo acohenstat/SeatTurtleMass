@@ -2,9 +2,9 @@ ui <- fluidPage(
   titlePanel("𓆉 Sea Turtle Biomass Prediction - Stereo Video Camera Morphometrics 𓆉 "),
   sidebarLayout(
     sidebarPanel(
-      numericInput("rSCL", "SCL - Straight Carapace Length (cm):", 6, min = 3, max = 8),
-      numericInput("rWFFL", "WFFL - Width of Front Flipper Left (cm):", 110, min = 50, max = 400),
-      numericInput("rHL", "HL - Head length (cm):", 3.0, min = 1.5, max = 6.0),
+      numericInput("rSCL", "SCL - Straight Carapace Length (cm):", 47.4 , min = 10, max = 100),
+      numericInput("rWFFL", "WFFL - Width of Front Flipper Left (cm):", 7.45, min = 2, max = 20),
+      numericInput("rHL", "HL - Head length (cm):", 10.2, min = 5, max = 30),
       actionButton("go", "Predict Biomass")
     ),
     mainPanel(
