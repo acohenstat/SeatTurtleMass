@@ -19,7 +19,7 @@ library(shiny)
 library(rsconnect)
 
 #### model
-    model_ready <- unbundle(readRDS("data/model_bundle.rds"))
+    model_ready <- bundle::unbundle(readRDS("data/model_bundle.rds"))
 
 server <- function(input, output) {
   pred_value <- eventReactive(input$go, {
