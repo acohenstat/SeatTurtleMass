@@ -17,7 +17,7 @@ ui <- fluidPage(
 library(bundle)
 library(shiny)
 library(rsconnect)
-
+library(tibble)
 #### model
     model_ready <- bundle::unbundle(readRDS("data/model_bundle.rds"))
 
