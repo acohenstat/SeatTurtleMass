@@ -6,12 +6,11 @@ library(ranger)
 library(rsconnect)
 
 # --- Load model ---
-model_ready <- bundle::unbundle(readRDS("data/model_bundle.rds"))
+model_ready <- bundle::unbundle(readRDS("data/rf_biomass_alldata.rds"))
 
 # --- Define example global metrics (replace with yours if available) ---
-RMSE <- 1.9
-MAPE <- 0.13
-
+RMSE <- 1.82
+MAPE <- 0.066
 # --- UI ---
 ui <- fluidPage(
   tags$head(
@@ -25,7 +24,18 @@ ui <- fluidPage(
         color: #117864;
         font-weight: bold;
         font-size: 26px;
-        margin-bottom: 25px;
+        margin-bottom: 10px;
+      }
+      .project-desc {
+        background-color: #FFFFFF;
+        border: 1px solid #D6EAF8;
+        border-radius: 10px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
+        color: #2C3E50;
+        box-shadow: 1px 1px 6px rgba(0,0,0,0.04);
+        font-size: 14px;
+        line-height: 1.5;
       }
       .well {
         background-color: #EAF2F8;
@@ -47,14 +57,30 @@ ui <- fluidPage(
     div(class = "title-panel",
         "𓆉 Sea Turtle Biomass Prediction - Stereo Video Camera Morphometrics 𓆉")
   ),
+
+  # Top project description panel
+  fluidRow(
+    column(
+      12,
+      div(class = "project-desc",
+          strong("Project description: "), 
+          HTML("This Shiny application predicts sea turtle biomass (kg) using morphometric measurements derived from stereo video camera or manual data. 
+          A trained random forest model is used to produce point predictions along with uncertainty estimates (RMSE-based 95% interval and ±MAPE range). 
+          Enter SCL, WFFL and HL in the input panel and click <em>Predict Biomass</em>.
+          <br><br>
+          <b>References:</b><br>
+          E. Roberto, T. Siegfried, A. Cohen, S. Piacenza. <em>Predicting Biomass Sea Turtle using Validated Stereo-video Camera Derived Morphometrics: Data from Florida (ongoing study)</em>.<br>")
+      )
+    )
+  ),
   
   sidebarLayout(
     sidebarPanel(
       h4("Input Morphometric Measurements"),
       tags$hr(),
-      numericInput("rSCL", "SCL - Straight Carapace Length (cm):", 47.4 , min = 10, max = 100),
-      numericInput("rWFFL", "WFFL - Width of Front Flipper Left (cm):", 7.45, min = 2, max = 20),
-      numericInput("rHL", "HL - Head Length (cm):", 10.2, min = 5, max = 30),
+      numericInput("SCL", "SCL - Straight Carapace Length (cm):", 47.4 , min = 10, max = 100),
+      numericInput("WFFL", "WFFL - Width of Front Flipper Left (cm):", 7.45, min = 2, max = 20),
+      numericInput("HL", "HL - Head Length (cm):", 10.2, min = 5, max = 30),
       tags$br(),
       actionButton("go", "Predict Biomass", class = "btn btn-success")
     ),
@@ -85,9 +111,9 @@ server <- function(input, output) {
   
   pred_value <- eventReactive(input$go, {
     new_data <- tibble(
-      rSCL  = input$rSCL,
-      rWFFL = input$rWFFL,
-      rHL   = input$rHL
+      SCL  = input$SCL,
+      WFFL = input$WFFL,
+      HL   = input$HL
     )
     predict(model_ready, new_data)$.pred
   })
@@ -180,6 +206,3 @@ shinyApp(ui, server)
 # }
 
 # shinyApp(ui, server)
-
-
-
