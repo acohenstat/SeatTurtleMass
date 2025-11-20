@@ -6,11 +6,12 @@ library(ranger)
 library(rsconnect)
 
 # --- Load model ---
-model_ready <- bundle::unbundle(readRDS("data/rf_biomass_alldata.rds"))
+model_ready <- bundle::unbundle(readRDS("data/model_bundle.rds"))
 
 # --- Define example global metrics (replace with yours if available) ---
-RMSE <- 1.82
-MAPE <- 0.066
+RMSE <- 1.9
+MAPE <- 0.13
+
 # --- UI ---
 ui <- fluidPage(
   tags$head(
@@ -24,18 +25,7 @@ ui <- fluidPage(
         color: #117864;
         font-weight: bold;
         font-size: 26px;
-        margin-bottom: 10px;
-      }
-      .project-desc {
-        background-color: #FFFFFF;
-        border: 1px solid #D6EAF8;
-        border-radius: 10px;
-        padding: 12px 18px;
-        margin-bottom: 20px;
-        color: #2C3E50;
-        box-shadow: 1px 1px 6px rgba(0,0,0,0.04);
-        font-size: 14px;
-        line-height: 1.5;
+        margin-bottom: 25px;
       }
       .well {
         background-color: #EAF2F8;
@@ -55,55 +45,58 @@ ui <- fluidPage(
   
   titlePanel(
     div(class = "title-panel",
-        "𓆉 Sea Turtle Biomass Prediction - Stereo Video Camera Morphometrics 𓆉")
-  ),
-
-  # Top project description panel
-  fluidRow(
-    column(
-      12,
-      div(class = "project-desc",
-          strong("Project description: "), 
-          HTML("This Shiny application predicts sea turtle biomass (kg) using morphometric measurements derived from stereo video camera or manual data. 
-          A trained random forest model is used to produce point predictions along with uncertainty estimates (RMSE-based 95% interval and ±MAPE range). 
-          Enter SCL, WFFL and HL in the input panel and click <em>Predict Biomass</em>.
-          <br><br>
-          <b>References:</b><br>
-          E. Roberto, T. Siegfried, A. Cohen, S. Piacenza. <em>Predicting Biomass Sea Turtle using Validated Stereo-video Camera Derived Morphometrics: Data from Florida (ongoing study)</em>.<br>")
-      )
-    )
+        "𓆉 Sea Turtle Biomass Prediction based on Morphometrics 𓆉")
   ),
   
   sidebarLayout(
     sidebarPanel(
       h4("Input Morphometric Measurements"),
       tags$hr(),
-      numericInput("SCL", "SCL - Straight Carapace Length (cm):", 47.4 , min = 10, max = 100),
-      numericInput("WFFL", "WFFL - Width of Front Flipper Left (cm):", 7.45, min = 2, max = 20),
-      numericInput("HL", "HL - Head Length (cm):", 10.2, min = 5, max = 30),
+      numericInput("rSCL", "SCL - Straight Carapace Length (cm):", 47.4 , min = 10, max = 100),
+      numericInput("rWFFL", "WFFL - Width of Front Flipper Left (cm):", 7.45, min = 2, max = 20),
+      numericInput("rHL", "HL - Head Length (cm):", 10.2, min = 5, max = 30),
       tags$br(),
       actionButton("go", "Predict Biomass", class = "btn btn-success")
     ),
 
     mainPanel(
-      h3("Predicted Biomass (Kg):", style = "color:#1A5276; font-weight:bold;"),
-      wellPanel(
-        h2(textOutput("pred"), 
-           style = "color:#2E86C1; font-weight:bold; text-align:center;"),
-        tags$hr(),
-        h4("Uncertainty Estimates", style = "color:#117A65; font-weight:bold;"),
-        htmlOutput("uncertainty_rmse"),
-        htmlOutput("uncertainty_mape")
+      tabsetPanel(
+        tabPanel("Prediction",
+                 h3("Predicted Biomass (Kg):", style = "color:#1A5276; font-weight:bold;"),
+                 wellPanel(
+                   h2(textOutput("pred"), 
+                      style = "color:#2E86C1; font-weight:bold; text-align:center;"),
+                   tags$hr(),
+                   h4("Uncertainty Estimates", style = "color:#117A65; font-weight:bold;"),
+                   htmlOutput("uncertainty_rmse"),
+                   htmlOutput("uncertainty_mape")
+                 )
+        ),
+        tabPanel("About",
+                 wellPanel(
+                   h4("Project description", style = "color:#1A5276; font-weight:bold;"),
+                   HTML("<p>This application predicts sea turtle biomass (kg) from combined data from stereo-video-derived and manual morphometrics (Straight Carapace Length, Width of Front Flipper, Head Length) using a pre-trained model on 3 species from Florida Gulf of Mexico (Gulf of America). 
+                  The model was trained and validated with field-collected morphometric and mass data; uncertainty is communicated with an RMSE-based 95% interval and a typical ±MAPE range.</p>"),
+                   tags$hr(),
+                   h4("Reference", style = "color:#117A65; font-weight:bold;"),
+                   HTML("<p>For details on model development, data sources, and evaluation please cite:</p>"),
+                   tags$ul(
+                     tags$li(HTML("E. Roberto, T. Siegfried, A. Cohen, S. Piacenza | Predicting sea turtle biomass using stereo-video camera derived and manual morphometrics in rehabilitation facilities in Florida. <em>Journal / Report</em>, 2025. <a href='https://doi.org/your-doi-here' target='_blank'>https://doi.org/your-doi-here</a>"))
+                   ),
+                   tags$hr(),
+                   HTML("<p style='font-size:12px;color:#5D6D7E;'>Contact: Achraf Cohen · Computational Statistics and Data Analytics Lab (CSDA) @ UWF</p>")
+                 )
+        )
       )
     )
   ),
   # ---- author----
-    tags$hr(),
-      div(
-      style = "text-align:center; font-size:14px; color:#5D6D7E; margin-top:20px;",
-      HTML("Developed by <b>Achraf Cohen</b> · Computational Statistics and Data Analytics Lab (CSDA) @ UWF <br>
+  tags$hr(),
+  div(
+    style = "text-align:center; font-size:14px; color:#5D6D7E; margin-top:20px;",
+    HTML("Developed by <b>Achraf Cohen</b> ·  <a href='https://csdalab.github.io/' target='_blank'>Computational Statistics and Data Analytics Lab (CSDA) @ UWF</a><br>
        © 2025")
-      )
+  )
 )
 
 # --- Server ---
@@ -111,9 +104,9 @@ server <- function(input, output) {
   
   pred_value <- eventReactive(input$go, {
     new_data <- tibble(
-      SCL  = input$SCL,
-      WFFL = input$WFFL,
-      HL   = input$HL
+      rSCL  = input$rSCL,
+      rWFFL = input$rWFFL,
+      rHL   = input$rHL
     )
     predict(model_ready, new_data)$.pred
   })
@@ -149,60 +142,3 @@ server <- function(input, output) {
 
 # --- Launch app ---
 shinyApp(ui, server)
-
-
-
-
-# ui <- fluidPage(
-#   titlePanel("𓆉 Sea Turtle Biomass Prediction - Stereo Video Camera Morphometrics 𓆉 "),
-#   sidebarLayout(
-#     sidebarPanel(
-#       numericInput("rSCL", "SCL - Straight Carapace Length (cm):", 47.4 , min = 10, max = 100),
-#       numericInput("rWFFL", "WFFL - Width of Front Flipper Left (cm):", 7.45, min = 2, max = 20),
-#       numericInput("rHL", "HL - Head length (cm):", 10.2, min = 5, max = 30),
-#       actionButton("go", "Predict Biomass")
-#     ),
-
-
-#  mainPanel(
-#   h3("Predicted Biomass (Kg):"),
-#   wellPanel(
-#     h2(textOutput("pred"), style = "color:#2E86C1; font-weight:bold;"),
-    
-#     tags$hr(),
-#     h4("Uncertainty Estimates"),
-#     htmlOutput("uncertainty_rmse"),
-#     htmlOutput("uncertainty_mape")
-#   )
-# )
-
-#   )
-# )
-
-# library(bundle)
-# library(shiny)
-# library(rsconnect)
-# library(tibble)
-# library(tidymodels)
-# library(ranger)
-
-
-# #### model
-#     model_ready <- bundle::unbundle(readRDS("data/model_bundle.rds"))
-
-# server <- function(input, output) {
-#   pred_value <- eventReactive(input$go, {
-#     new_data <- tibble(
-#       rSCL = input$rSCL,
-#       rWFFL  = input$rWFFL,
-#       rHL  = input$rHL
-#     )
-#     predict(model_ready, new_data)$.pred
-#   })
-
-#   output$pred <- renderPrint({
-#     pred_value()
-#   })
-# }
-
-# shinyApp(ui, server)
